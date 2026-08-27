@@ -1,11 +1,15 @@
+require('dotenv').config()
+
 const express = require('express');
 const cors = require('cors');
 const Database = require('better-sqlite3');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const db = new Database('data.db');
+
+
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS ukoly (
@@ -17,6 +21,13 @@ db.exec(`
 
     app.use(cors());
     app.use(express.json());
+
+    app.get('/kontakt', (req, res) => {
+  res.json ({
+    email: process.env.KONTAKT_EMAIL,
+    telefon: process.env.KONTAKT_TELEFON
+  });
+});
 
     app.get('/ukoly', (req, res) => {
       const nacist = db.prepare('SELECT * FROM ukoly');
