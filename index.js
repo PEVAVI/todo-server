@@ -38,13 +38,22 @@ db.exec(`
     app.post('/ukoly', (req, res) => {
       const text = req.body.text;
 
-      const vlozit = db.prepare('INSERT INTO ukoly (text) VALUES (?)');
-      const vysledek = vlozit.run(text);
+      if (!text || text.trim() === '') {
+        return res.status(400).json({chyba: 'Text úkolu nesmí být prázdný.' });
+      }
+
+      try {
+        const vlozit = db.prepare('INSERT INTO ukoly (text) VALUES (?)');
+        const vysledek = vlozit.run(text);
 
       res.json({
         zprava: 'Úkol byl přidán.',
         id: vysledek.lastInsertRowid
       });
+    } catch (chyba) {
+      console.error('Chyba při ukládání úkolu:', chyba);
+      res.status(500).json({chyba: 'Nepodařilo se uložit úkol.'});
+    }
     });
 
     app.put('/ukoly/:id', (req, res) => {
